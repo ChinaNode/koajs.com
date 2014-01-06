@@ -1,4 +1,4 @@
-# Koajs.rednode.cn
+# koa.rednode.cn
 
   Forked from [koajs.com](https://github.com/koajs/koajs.com) and [koa-guide](https://github.com/turingou/koa-guide).
 
