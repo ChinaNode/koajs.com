@@ -1,6 +1,6 @@
 # Koajs.com
 
-  The Koa website.
+  Forked from [koajs.com](https://github.com/koajs/koajs.com) and [koa-guide](https://github.com/turingou/koa-guide).
 
 ## Contributing
 

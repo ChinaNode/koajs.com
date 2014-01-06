@@ -447,7 +447,7 @@ this.acceptsLanguages();
 <h3 id="res-header">res.header</h3>
 <p> Response header object.</p>
 <h3 id="res-status">res.status</h3>
-<p>  Get response status.</p>
+<p>  Get response status. By default, <code>res.status</code> is not set unlike node&#39;s <code>res.statusCode</code> which defaults to <code>200</code>.</p>
 <h3 id="res-status-">res.status=</h3>
 <p>  Set response status via numeric code or case-insensitive string:</p>
 <ul>
@@ -517,9 +517,7 @@ so you can make a correction.</p>
 <p>  Return response Content-Length as a number when present, or deduce
   from <code>res.body</code> when possible, or <code>undefined</code>.</p>
 <h3 id="res-body">res.body</h3>
-<p>  Get response body. When <code>res.body</code> is <code>null</code> and <code>res.status</code> is still
-  200 it is considered a 404. This is to prevent the developer from manually
-  specifying <code>this.status = 200</code> on every response.</p>
+<p>  Get response body.</p>
 <h3 id="res-body-">res.body=</h3>
 <p>  Set response body to one of the following:</p>
 <ul>
@@ -527,7 +525,9 @@ so you can make a correction.</p>
 <li><code>Buffer</code> written</li>
 <li><code>Stream</code> piped</li>
 <li><code>Object</code> json-stringified</li>
-<li><code>null</code> no content response</li>
+<li><p><code>null</code> no content response</p>
+<p>If <code>res.status</code> has not been set, Koa will automatically set the status to <code>200</code> or <code>204</code>.</p>
+</li>
 </ul>
 <h4 id="string">String</h4>
 <p>  The Content-Type is defaulted to text/html or text/plain, both with
