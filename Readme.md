@@ -16,9 +16,8 @@ $ open index.html
 
 # TODO
 
-* 其他美化
-* SEO
-
+* 润色文档
+* 添加Github链接
 
 # TO ELEGANT
 
