@@ -16,9 +16,7 @@ $ npm install koa
 alias node='node --harmony'
 ````
 
----
-
-### 应用（Application）
+### Application
 
 一个 Koa Application（以下简称 app）由一系列 generator 中间件组成。按照编码顺序在栈内依次执行，从这个角度来看，Koa app 和其他中间件系统（比如 Ruby Rack 或者 Connect/Express ）没有什么太大差别，不过，从另一个层面来看，Koa 提供了一种基于底层中间件编写「语法糖」的设计思路，这让设计中间件变得更简单有趣。
 
@@ -36,7 +34,6 @@ app.listen(3000);
 ````
 **译者注：** 与普通的 function 不同，generator functions 以 `function*` 声明。以这种关键词声明的函数支持 `yield`
 
----
 
 ### 编写级联代码（Cascading）
 
@@ -106,7 +103,6 @@ app.listen(3000);
 
 ![onion.png](https://raw.github.com/fengmk2/koa-guide/master/onion.png)
 
----
 
 ### 应用配置（Settings）
 
@@ -119,7 +115,6 @@ app.listen(3000);
 - app.jsonSpaces 输出 json 时是否自动添加空格充当缩进，详见下方 api
 - app.outputErrors 是否输出错误堆栈（`err.stack`）到 `stderr` [当执行环境是 `"test"` 的时候为 `false`]
 
----
 
 ### 中间件（Middleware）
 * [koa-router](https://github.com/alexmingoia/koa-router)
@@ -138,7 +133,6 @@ app.listen(3000);
 * [send](https://github.com/koajs/send)
 * [error](https://github.com/koajs/error)
 
----
 
 ### 常用方法
 
@@ -206,9 +200,8 @@ app.on('error', function(err, ctx){
 
 如果任何错误有可能被回应到客户端，比如当没有新数据写入 socket 时，Koa 会默认返回一个 500 错误，并抛出一个 app 级别的错误到日志处理中间件中。
 
----
 
-### 应用上下文（Context）
+### Context
 
 Koa 的上下文封装了 request 与 response 对象至一个对象中，并提供了一些帮助开发者编写业务逻辑的方法。为了方便，你可以在 `ctx.request` 和 `ctx.response` 中访问到这些方法。
 
@@ -310,7 +303,6 @@ throw err;
 
 需要注意的是，`ctx.throw` 创建的错误，均为用户级别错误（标记为err.expose），会被返回到客户端。
 
----
 
 ### Request
 
@@ -534,7 +526,6 @@ this.acceptsEncodings();
 
 使用方法同 req.acceptsEncodings(encodings)
 
----
 
 ### Response
 
@@ -743,8 +734,6 @@ this.response.lastModified = new Date();
 this.response.etag = crypto.createHash('md5').update(this.body).digest('hex');
 ````
 
----
-
 ### 性能（Benchmarks）
 
 挂载不同数量的中间件，wrk 得出 benchmarks 如下：
@@ -775,20 +764,3 @@ this.response.etag = crypto.createHash('md5').update(this.body).digest('hex');
 4349.37
 ````
 一般来说，我们通常要使用约50个中间件，按这个标准计算，单应用可支持 340,260 请求/分钟，即 20,415,600 请求/小时，也就是约 4.4 亿 请求/天。
-
----
-
-### 学习资料
-
-发现更多第三方的 koa 中间件，或者一起来参与社区的讨论和建设吧：
-
-- [GitHub repository](https://github.com/koajs/koa)
-- [Examples](https://github.com/koajs/examples)
-- [Middleware](https://github.com/koajs/koa/wiki)
-- [Wiki](https://github.com/koajs/koa/wiki)
-- [G+ Community](https://plus.google.com/communities/101845768320796750641)
-- [Mailing list](https://groups.google.com/forum/#!forum/koajs)
-- [Guide](https://github.com/koajs/koa/blob/master/docs/guide.md)
-- [FAQ](https://github.com/koajs/koa/blob/master/docs/faq.md)
-
----

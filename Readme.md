@@ -16,8 +16,11 @@ $ open index.html
 
 # TODO
 
-* 添加域名解析
-* 链接处理
-* 横线样式处理
 * 其他美化
-* SEO&ga
+* SEO
+
+
+# TO ELEGANT
+
+* 更新同步问题
+
