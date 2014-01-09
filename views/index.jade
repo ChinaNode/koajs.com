@@ -7,7 +7,7 @@ html
     link(rel='stylesheet', href='http://fonts.googleapis.com/css?family=Italiana&subset=latin')
     meta(name='viewport', content='user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0')
     meta(charset='utf8')
-    meta(name='keywords', content='Koa, Koajs, Node, 框架, generator, RedNode, ')
+    meta(name='keywords', content='Koa, Koajs, Node, 框架, generator, RedNode')
     meta(name='description', content='Express原班团队打造的下一代 Node.js web 框架, 全新架构, 核心代码精简, 全新的流程书写代码')
 
   body
@@ -21,10 +21,11 @@ html
           li: a(href='#request') Request
           li: a(href='#response') Response
           li: a(href='#links') Links
+          li: a(href='http://koajs.com', target='_blank') Koajs.com
 
       #heading
         #logo Koa
-        #tagline Koa，下一代 Node.js web 框架
+        #tagline 下一代 Node.js web 框架
 
     section
       .content
@@ -34,7 +35,20 @@ html
 
     section
       .content
-        include ../public/readme.md
+        include ../public/cn/index_cn.md
+
+    section
+      .content
+        include ../public/cn/context_cn.md
+
+    section
+      .content
+        include ../public/cn/request_cn.md
+
+    section
+      .content
+        include ../public/cn/response_cn.md
+
 
     section
       .content

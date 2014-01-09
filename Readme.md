@@ -1,6 +1,6 @@
 # koa.rednode.cn
 
-  Forked from [koajs.com](https://github.com/koajs/koajs.com) and [koa-guide](https://github.com/turingou/koa-guide).
+  Forked from [koajs.com](https://github.com/koajs/koajs.com). 翻译参考[koa-guide](https://github.com/turingou/koa-guide).
 
 ## Building
 
