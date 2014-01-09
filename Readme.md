@@ -16,10 +16,10 @@ $ open index.html
 
 # TODO
 
-* 润色文档
+* 润色翻译
 * 添加Github链接
 
 # TO ELEGANT
 
-* 更新同步问题
+* 文档更新如何同步
 
