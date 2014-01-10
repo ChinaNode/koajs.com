@@ -1,4 +1,4 @@
-<!DOCTYPE html><html><head><title>Koa - 下一代 Node.js web 框架</title><link rel="stylesheet" href="public/style.css"><link rel="shortcut icon" href="favi.co"><link rel="stylesheet" href="public/icons/css/slate.css"><link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Italiana&amp;subset=latin"><meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0"><meta charset="utf8"><meta name="keywords" content="Koa, Koajs, Node, Web框架, generator, RedNode"><meta name="description" content="Express原班团队打造的下一代 Node.js web 框架, 全新架构, 核心代码精简, 全新的流程书写代码-Koajs"></head><body><section id="top"><div id="menu"><a id="toggle" href="#"><i class="icon-menu"></i></a><ul><li><a href="#introduction">Introduction</a></li><li><a href="#application">Application</a></li><li><a href="#context">Context</a></li><li><a href="#request">Request</a></li><li><a href="#response">Response</a></li><li><a href="#links">Links</a></li><li><a href="http://koajs.com" target="_blank">Koajs.com</a></li></ul></div><div id="heading"><div id="logo">Koa</div><div id="tagline">下一代 Node.js web 框架</div></div></section><section><div class="content"><h1 id="introduction">简介</h1><p>由 Express 原班人马打造的 koa，致力于成为一个更小、更健壮、更富有表现力的 Web 框架。使用 koa 编写 web 应用，通过组合不同的 generator，可以免除重复繁琐的回调函数嵌套，并极大地提升常用错误处理效率。Koa 不在内核方法中绑定任何中间件，它仅仅提供了一个轻量优雅的函数库，使得编写 Web 应用变得得心应手。
+<!DOCTYPE html><html><head><title>Koa - 下一代 Node.js web 框架</title><link rel="stylesheet" href="public/style.css"><link rel="shortcut icon" href="favi.co"><link rel="stylesheet" href="public/icons/css/slate.css"><link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Italiana&amp;subset=latin"><meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0"><meta charset="utf8"><meta name="keywords" content="Koa, Koajs, Node, Web框架, generator, RedNode"><meta name="description" content="Express原班团队打造的下一代 Node.js web 框架, 全新架构, 核心代码精简, 全新的流程书写代码-Koajs"></head><body><section id="top"><div id="menu"><a id="toggle" href="#"><i class="icon-menu"></i></a><ul><li><a href="#introduction">Introduction</a></li><li><a href="#application">Application</a></li><li><a href="#context">Context</a></li><li><a href="#request">Request</a></li><li><a href="#response">Response</a></li><li><a href="#guide">Guide</a></li><li><a href="#links">Links</a></li><li><a href="http://koajs.com" target="_blank">Koajs.com</a></li></ul></div><div id="heading"><div id="logo">Koa</div><div id="tagline">下一代 Node.js web 框架</div></div></section><section><div class="content"><h1 id="introduction">简介</h1><p>由 Express 原班人马打造的 koa，致力于成为一个更小、更健壮、更富有表现力的 Web 框架。使用 koa 编写 web 应用，通过组合不同的 generator，可以免除重复繁琐的回调函数嵌套，并极大地提升常用错误处理效率。Koa 不在内核方法中绑定任何中间件，它仅仅提供了一个轻量优雅的函数库，使得编写 Web 应用变得得心应手。
 </p></div></section><section><div class="content"><h1 id="-koa">安装 koa</h1>
 <p>  koa 依赖支持 generator 的 Node 环境，准确来说，是 <code>node &gt;= 0.11.9</code> 的环境。</p>
 <pre><code>$ npm install koa</code></pre>
@@ -566,6 +566,194 @@ this.body = &#39;Redirecting to shopping cart&#39;;</code></pre>
 <h3 id="res-etag-">res.etag=</h3>
 <p>  设置响应的 ETag (包括 wrapped <code>&quot;</code>). 注意没有对应的 <code>res.etag</code> 获取器.</p>
 <pre><code class="lang-js">this.response.etag = crypto.createHash(&#39;md5&#39;).update(this.body).digest(&#39;hex&#39;);</code></pre>
+</div></section><section><div class="content"><h1 id="guide">Guide</h1>
+<p>  这节内容跟 API 无关, 而是中间件开发最佳实践, 应用架构建议等.</p>
+<h2 id="-">开发中间件</h2>
+<p>  Koa 中间件是返回 <code>GeneratorFunction</code> 的方法, 并接受其他的中间件. 当某个中间件被 &quot;upstream&quot; 中间件执行时, 它必须手动 <code>yield</code>
+  &quot;downstream&quot; 中间件</p>
+<p>  例如你想记录 request 传递经过 Koa 的时间, 可以开发一个添加 <code>X-Response-Time</code> 头字段的中间件.</p>
+<pre><code class="lang-js">function *responseTime(next){
+  var start = new Date;
+  yield next;
+  var ms = new Date - start;
+  this.set(&#39;X-Response-Time&#39;, ms + &#39;ms&#39;);
+}
+
+app.use(responseTime);</code></pre>
+<p>  如下是一个等价的 inline 中间件:</p>
+<pre><code class="lang-js">app.use(function *(next){
+  var start = new Date;
+  yield next;
+  var ms = new Date - start;
+  this.set(&#39;X-Response-Time&#39;, ms + &#39;ms&#39;);
+});</code></pre>
+<p>  如果你是一个前端工程师, 可以把所有 <code>yield next;</code> 之前的代码看做 &quot;capture&quot; 阶段, 把之后的代码看做 &quot;bubble&quot; 阶段. 
+  如下 gif 展示了 ES6 generators 如何让我们合理的使用 stack flow 实现 request and response flows:</p>
+<p><img src="https://i.cloudup.com/N7L5UakJo0.gif" alt="koa middleware"></p>
+<ol>
+<li>创建 date 记录花费时间</li>
+<li>将控制 Yield 到下一个 middleware</li>
+<li>创建另外 date 记录响应时间</li>
+<li>将控制 Yield 到下一个 middleware</li>
+<li>立刻 Yield 控制, 因为 <code>contentLength</code> 只对 response 起作用</li>
+<li>将 upstream Yield 到 Koa 的 空middleware.</li>
+<li>如果请求路径不是 &quot;/&quot;, 则跳过设置 body.</li>
+<li>设置响应为 &quot;Hello World&quot;</li>
+<li>如果有 body 则设置 <code>Content-Length</code></li>
+<li>设置头部字段</li>
+<li>输出log</li>
+<li>发送响应前设置 <code>X-Response-Time</code> 头字段</li>
+<li>转会 Koa, Koa负责发送 response</li>
+</ol>
+<p>注意最后的中间件 (step <strong>6</strong>) yields, 看起来没有转给任何东西, 但实际上他转给了 Koa 的空 generator. 这是为了保证所有
+的中间件遵循相同的 API, 可以在其他中间件前边或后边使用. 如果你删掉最深 &quot;downstream&quot; 中间件的 <code>yield next;</code> 所有的功能
+都还 OK, 但是不在遵循这个行为.</p>
+<p> 例如如下代码也不会出错:</p>
+<pre><code class="lang-js">app.use(function *response(){
+  if (&#39;/&#39; != this.url) return;
+  this.body = &#39;Hello World&#39;;
+});</code></pre>
+<p>接下来是中间件开发最佳实践</p>
+<h2 id="-">中间件最佳实践</h2>
+<p>  这个环节介绍了中间件开发最佳实践相关内容: 可接受的选项, 给中间件命名有利于调试, 及其他.</p>
+<h3 id="-">中间件选项</h3>
+<p>  在开发中间件时遵循惯例是非常重要的: 使用接受参数的方法 wrapping 中间件, 这样用户可以扩展功能.
+  即使你的中间件不接受选项, 保持所有事情一致也是最好的选择.</p>
+<p>  如下是一个 <code>logger</code> 中间件, 接受 <code>format</code> 字符串, 用于自定义格式, 最后返回中间件.</p>
+<pre><code class="lang-js">function logger(format){
+  format = format || &#39;:method &quot;:url&quot;&#39;;
+
+  return function *(next){
+    var str = format
+      .replace(&#39;:method&#39;, this.method)
+      .replace(&#39;:url&#39;, this.url);
+
+    console.log(str);
+
+    yield next;
+  }
+}
+
+app.use(logger());
+app.use(logger(&#39;:method :url&#39;));</code></pre>
+<h3 id="-">给中间件命名</h3>
+<p>  中间件命名不是强制的, 但如果中间件有名字, 在调试时会非常有帮助.</p>
+<pre><code class="lang-js">function logger(format){
+  return function *logger(next){
+
+  }
+}</code></pre>
+<h3 id="-">将多个中间件组合为一个</h3>
+<p>  有时候你需要将多个中间件组合成一个, 从而方便重用或 exporting. 这时你可以用 <code>.call(this, next)</code> 将他们连起来, 然后将 yield 这个 chain 的方法返回.</p>
+<pre><code class="lang-js">function *random(next){
+  if (&#39;/random&#39; == this.path) {
+    this.body = Math.floor(Math.random()*10);
+  } else {
+    yield next;
+  }
+};
+
+function *backwords(next) {
+  if (&#39;/backwords&#39; == this.path) {
+    this.body = &#39;sdrowkcab&#39;;
+  } else {
+    yield next;
+  }
+}
+
+function *pi(next){
+  if (&#39;/pi&#39; == this.path) {
+    this.body = String(Math.PI);
+  } else {
+    yield next;
+  }
+}
+
+function *all(next) {
+  yield random.call(this, backwords.call(this, pi.call(this, next)));
+}
+
+app.use(all);</code></pre>
+<p>  Koa 内部 使用 koa-compose 创建和调度中间件栈. <a href="https://github.com/koajs/compose">koa-compose</a> 内部就是这样实现的.</p>
+<h3 id="-">响应中间件</h3>
+<p>  如果中间件用于响应请求, 需要跳过 downstream 的中间件可以直接省略 <code>yield next</code>. 通常路由中间件就是这样的, 而且在所有中间件里都可以省略.
+  例如下面的例子会响应 &quot;two&quot;, 但是三个都被执行了, 所以在 downstream &quot;three&quot; 中间件里就有可能修改响应结果.</p>
+<pre><code class="lang-js">app.use(function *(next){
+  console.log(&#39;&gt;&gt; one&#39;);
+  yield next;
+  console.log(&#39;&lt;&lt; one&#39;);
+});
+
+app.use(function *(next){
+  console.log(&#39;&gt;&gt; two&#39;);
+  this.body = &#39;two&#39;;
+  yield next;
+  console.log(&#39;&lt;&lt; two&#39;);
+});
+
+app.use(function *(next){
+  console.log(&#39;&gt;&gt; three&#39;);
+  yield next;
+  console.log(&#39;&lt;&lt; three&#39;);
+});</code></pre>
+<p>  The following configuration omits <code>yield next</code> in the second middleware, and will still respond
+  with &quot;two&quot;, however the third (and any other downstream middleware) will be ignored:
+  在下面的例子中第二个中间件省略了 <code>yield next</code>, 最终响应结果还是 &quot;two&quot;, 但是第三个(以后后面所有的 downstream 中间件)中间件被忽略了.</p>
+<pre><code class="lang-js">app.use(function *(next){
+  console.log(&#39;&gt;&gt; one&#39;);
+  yield next;
+  console.log(&#39;&lt;&lt; one&#39;);
+});
+
+app.use(function *(next){
+  console.log(&#39;&gt;&gt; two&#39;);
+  this.body = &#39;two&#39;;
+  console.log(&#39;&lt;&lt; two&#39;);
+});
+
+app.use(function *(next){
+  console.log(&#39;&gt;&gt; three&#39;);
+  yield next;
+  console.log(&#39;&lt;&lt; three&#39;);
+});</code></pre>
+<p>  当最深的中间件执行 <code>yield next;</code>, 它实际上是 yield 的空方法, 这样可以保证 stack 中所有地方的中间件可以正常 compose.</p>
+<h2 id="-">异步操作</h2>
+<p>  <a href="https://github.com/visionmedia/co">Co</a> 构成了 Koa generator 委托的基石. 让我们可以写非阻塞的顺序代码.
+  例如如下代码. 读取 <code>./docs</code> 中的所有文件名, 并读取所有 markdown 的内容, 连接后赋给 body, 这所有的异步操作都是使用
+  顺序代码实现的.</p>
+<pre><code class="lang-js">var fs = require(&#39;co-fs&#39;);
+
+app.use(function *(){
+  var paths = yield fs.readdir(&#39;docs&#39;);
+
+  var files = yield paths.map(function(path){
+    return fs.readFile(&#39;docs/&#39; + path, &#39;utf8&#39;);
+  });
+
+  this.type = &#39;markdown&#39;;
+  this.body = files.join(&#39;&#39;);
+});</code></pre>
+<h2 id="-koa">调试 Koa</h2>
+<p>Koa 和许多相关的库都支持 <strong>DEBUG</strong> 环境变量. 这是通过 <a href="https://github.com/visionmedia/debug">debug</a> 实现的, debug 提供简单的条件 logging.</p>
+<p>  例如, 如果想查看所有 koa 调试信息, 设置环境变量为 <code>DEBUG=koa*</code>, 这样在程序启动的时候, 可以看到所有使用的中间件列表.</p>
+<pre><code>$ DEBUG=koa* node --harmony examples/simple
+  koa:application use responseTime +0ms
+  koa:application use logger +4ms
+  koa:application use contentLength +0ms
+  koa:application use notfound +0ms
+  koa:application use response +0ms
+  koa:application listen +0ms</code></pre>
+<p>  虽然 JavaScript 不允许动态定义方法名, 但是你可以将中间件的名字设置为 <code>._name</code>.
+  这在你无法修改中间件名字时非常有用如:</p>
+<pre><code class="lang-js">var path = require(&#39;path&#39;);
+var static = require(&#39;koa-static&#39;);
+
+var publicFiles = static(path.join(__dirname, &#39;public&#39;));
+publicFiles._name = &#39;static /public&#39;;
+
+app.use(publicFiles);</code></pre>
+<p>  现在, 在调试模式你不仅可以看到 &quot;static&quot;, 还能:</p>
+<pre><code>  koa:application use static /public +0ms</code></pre>
 </div></section><section><div class="content"><h1 id="links">相关链接</h1><p>相关社区, 可以发现Koa第三方中间件, 完整可运行例子, 简明的指导,以及更多.
 如果发现问题可以在IRC上提出讨论.
 </p><ul><li><a href="https://github.com/koajs">GitHub organization</a></li><li><a href="https://github.com/koajs/koa">GitHub repository</a></li><li><a href="https://github.com/koajs/examples">Examples</a></li><li><a href="https://github.com/koajs/koa/wiki">Middleware</a></li><li><a href="https://github.com/koajs/koa/wiki">Wiki</a></li><li><a href="https://plus.google.com/communities/101845768320796750641">G+ Community</a></li><li><a href="https://groups.google.com/forum/#!forum/koajs">Mailing list</a></li><li><a href="https://github.com/koajs/koa/blob/master/docs/guide.md">Guide</a></li><li><a href="https://github.com/koajs/koa/blob/master/docs/faq.md">FAQ</a></li><li><a href="http://koajs.com/">Koajs.com</a></li><li><a href="https://sourcegraph.com/koajs">sourcegraph koajs</a></li><li><a href="https://npmjs.org/package/koa">NPM koa</a></li><li><a href="http://koajs.cn/">Koajs.cn</a></li><li><strong>#koajs</strong> on freenode</li></ul></div></section><script type="text/javascript">(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){

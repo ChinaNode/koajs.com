@@ -2,7 +2,8 @@
 DOCS = public/cn/index_cn.md \
   public/cn/context_cn.md \
   public/cn/request_cn.md \
-  public/cn/response_cn.md
+  public/cn/response_cn.md \
+  public/cn/guide_cn.md
 
 DOCS = public/readme.md
 
@@ -20,9 +21,15 @@ public/cn/context_cn.md:
 public/cn/request_cn.md:
 	@./public/cn/request_cn.md \
 	  | ./rewrite.js > $@
+
 public/cn/response_cn.md:
 	@./public/cn/response_cn.md \
 	  | ./rewrite.js > $@
+
+public/cn/guide_cn.md:
+	@./public/cn/guide_cn.md \
+	  | ./rewrite.js > $@
+
 
 clean:
 	rm -fr *.html
