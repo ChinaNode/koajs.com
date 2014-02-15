@@ -76,7 +76,6 @@ app.listen(3000);</code></pre>
 <li>app.env 执行环境，默认是 <code>NODE_ENV</code> 或者 <code>&quot;development&quot;</code> 字符串</li>
 <li>app.proxy 决定了哪些 <code>proxy header</code> 参数会被加到信任列表中</li>
 <li>app.subdomainOffset 被忽略的 <code>.subdomains</code> 列表，详见下方 api</li>
-<li>app.jsonSpaces 输出 json 时是否自动添加空格充当缩进，详见下方 api</li>
 <li>app.outputErrors 是否输出错误堆栈（<code>err.stack</code>）到 <code>stderr</code> [当执行环境是 <code>&quot;test&quot;</code> 的时候为 <code>false</code>]</li>
 </ul>
 <h2 id="-middleware-">中间件（Middleware）</h2>
@@ -197,6 +196,9 @@ err.status = 400;
 throw err;</code></pre>
 <p>  注意这些是 user-level 的错误, 被标记为 <code>err.expose</code>, 即这些消息可以用于 client 响应,
   而不是 error message 的情况, 因为你不想泄露失败细节.</p>
+<h3 id="ctx-respond">ctx.respond</h3>
+<p>  如不想使用 koa 内置的 response 处理方法, 可以 设置 <code>this.respond = false;</code>. 这时你可以自己设置 <code>res</code> 对象.</p>
+<p>  注意这样使用是不被 Koa 支持的. 这样有可能会破坏 Koa 的中间件和 Koa 本身. 这种用法只是作为一种 hack 方式, 给那些想在 Koa 中间件和方法内使用传统的<code>fn(req, res)</code> 一种方式</p>
 <h2 id="request-">Request 别名</h2>
 <p>  如下访问器和别名同 <a href="#request">Request</a> 等价:</p>
 <ul>
@@ -282,6 +284,8 @@ throw err;</code></pre>
 <p>  获取请求 <code>Content-Type</code> 字段, 不包含参数, 如 &quot;charset&quot;.</p>
 <pre><code class="lang-js">var ct = this.type;
 // =&gt; &quot;image/png&quot;</code></pre>
+<h3 id="req-charset">req.charset</h3>
+<p>  获取请求 charset, 没有返回 <code>undefined</code></p>
 <h3 id="req-query">req.query</h3>
 <p>  获取解析后的 query-string, 如果没有返回空对象. 注意: 该方法不支持嵌套解析.</p>
 <p>  例如 &quot;color=blue&amp;size=small&quot;:</p>
@@ -416,12 +420,22 @@ this.acceptsLanguages([&#39;en&#39;, &#39;es&#39;]);
 <pre><code class="lang-js">// Accept-Language: en;q=0.8, es, pt
 this.acceptsLanguages();
 // =&gt; [&quot;es&quot;, &quot;pt&quot;, &quot;en&quot;]</code></pre>
+<h3 id="req-idempotent">req.idempotent</h3>
+<p>  判断请求是否是 idempotent.</p>
+<h3 id="req-socket">req.socket</h3>
+<p>  返回请求 socket.</p>
+<h3 id="req-get-field-">req.get(field)</h3>
+<p>  返回请求 header.</p>
 </div></section><section><div class="content"><h1 id="response">Response</h1>
 <p>  Koa <code>Response</code> 对象是 node 普通 request 对象之上的抽象, 提供了日常 HTTP server 中有用的功能.</p>
 <h2 id="api">API</h2>
 <h3 id="res-header">res.header</h3>
 <p> 响应 header 对象.</p>
+<h3 id="res-socket">res.socket</h3>
+<p>  请求socket</p>
 <h3 id="res-status">res.status</h3>
+<h3 id="res-statusstring">res.statusString</h3>
+<p>  响应状态字符串</p>
 <p>返回响应状态. 默认 <code>res.status</code> 没有值, 而不是像 node 的 <code>res.statusCode</code> 默认为 <code>200</code>.</p>
 <h3 id="res-status-">res.status=</h3>
 <p>使用状态码或不区分大小写的字符串设置响应状态:</p>
@@ -510,10 +524,6 @@ this.acceptsLanguages();
 <p>  Content-Type 默认设置为 application/octet-stream.</p>
 <h4 id="object">Object</h4>
 <p>  Content-Type 默认设置为 to application/json.</p>
-<h4 id="notes">Notes</h4>
-<p>  若想设置 JSON response 格式可以设置 <code>app.jsonSpaces</code>
-  配置, 如想要压缩 JSON 结果可以设置:</p>
-<pre><code class="lang-js">app.jsonSpaces = 0;</code></pre>
 <h3 id="res-get-field-">res.get(field)</h3>
 <p>  获取响应头部字段值, <code>field</code> 区分大小写.</p>
 <pre><code class="lang-js">var etag = this.get(&#39;ETag&#39;);</code></pre>
@@ -541,6 +551,13 @@ this.type = &#39;png&#39;;</code></pre>
 <p>  注意: 当合适的 <code>charset</code> 可以确定, 会自动设置, 例如 <code>res.type = &#39;html&#39;</code>
   会自动设置为 &quot;utf-8&quot;, 但是如果设置完整时, charset 不会自动设定,
   如 <code>res.type = &#39;text/html&#39;</code>.</p>
+<h3 id="res-charset">res.charset</h3>
+<p>  获取响应 charset, 没有返回 <code>undefined</code>:</p>
+<pre><code class="lang-js">this.type = &#39;text/plain; charset=utf-8&#39;;
+this.charset
+// =&gt; &quot;utf-8&quot;</code></pre>
+<h3 id="res-charset-">res.charset=</h3>
+<p>  设置 response charset, 如果已存在则覆盖</p>
 <h3 id="res-redirect-url-alt-">res.redirect(url, [alt])</h3>
 <p>  执行 [302] 重定向到 <code>url</code>.</p>
 <p>  字符 &quot;back&quot; 是一种特殊用法, 能提供 Referrer支持, 当没有 Referrer时 使用<code>alt</code> 或 &quot;/&quot;</p>
@@ -566,6 +583,10 @@ this.body = &#39;Redirecting to shopping cart&#39;;</code></pre>
 <h3 id="res-etag-">res.etag=</h3>
 <p>  设置响应的 ETag (包括 wrapped <code>&quot;</code>). 注意没有对应的 <code>res.etag</code> 获取器.</p>
 <pre><code class="lang-js">this.response.etag = crypto.createHash(&#39;md5&#39;).update(this.body).digest(&#39;hex&#39;);</code></pre>
+<h3 id="res-append-field-val-">res.append(field, val)</h3>
+<p>  在header <code>field</code> 值后附加 <code>val</code></p>
+<h3 id="res-vary-field-">res.vary(field)</h3>
+<p>  Vary on <code>field</code>.</p>
 </div></section><section><div class="content"><h1 id="guide">Guide</h1>
 <p>  这节内容跟 API 无关, 而是中间件开发最佳实践, 应用架构建议等.</p>
 <h2 id="-">开发中间件</h2>

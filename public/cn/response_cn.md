@@ -8,7 +8,15 @@
 
  响应 header 对象.
 
+### res.socket
+  请求socket
+
 ### res.status
+
+### res.statusString
+
+  响应状态字符串
+
 
 返回响应状态. 默认 `res.status` 没有值, 而不是像 node 的 `res.statusCode` 默认为 `200`.
 
@@ -117,15 +125,6 @@ __注意__: 不用担心没法记住这些状态码, 如果设置错误, 会有�
 
   Content-Type 默认设置为 to application/json.
 
-#### Notes
-
-  若想设置 JSON response 格式可以设置 `app.jsonSpaces`
-  配置, 如想要压缩 JSON 结果可以设置:
-
-```js
-app.jsonSpaces = 0;
-```
-
 ### res.get(field)
 
   获取响应头部字段值, `field` 区分大小写.
@@ -181,6 +180,22 @@ this.type = 'png';
   会自动设置为 "utf-8", 但是如果设置完整时, charset 不会自动设定,
   如 `res.type = 'text/html'`.
 
+
+### res.charset
+
+  获取响应 charset, 没有返回 `undefined`:
+
+```js
+this.type = 'text/plain; charset=utf-8';
+this.charset
+// => "utf-8"
+```
+
+### res.charset=
+
+  设置 response charset, 如果已存在则覆盖
+
+
 ### res.redirect(url, [alt])
 
   执行 [302] 重定向到 `url`.
@@ -231,4 +246,13 @@ this.response.lastModified = new Date();
 ```js
 this.response.etag = crypto.createHash('md5').update(this.body).digest('hex');
 ```
+
+### res.append(field, val)
+
+  在header `field` 值后附加 `val`
+
+### res.vary(field)
+
+  Vary on `field`.
+
 

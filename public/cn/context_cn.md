@@ -93,6 +93,14 @@ throw err;
   注意这些是 user-level 的错误, 被标记为 `err.expose`, 即这些消息可以用于 client 响应,
   而不是 error message 的情况, 因为你不想泄露失败细节.
 
+
+### ctx.respond
+
+  如不想使用 koa 内置的 response 处理方法, 可以 设置 `this.respond = false;`. 这时你可以自己设置 `res` 对象.
+
+  注意这样使用是不被 Koa 支持的. 这样有可能会破坏 Koa 的中间件和 Koa 本身. 这种用法只是作为一种 hack 方式, 给那些想在 Koa 中间件和方法内使用传统的`fn(req, res)` 一种方式
+
+
 ## Request 别名
 
   如下访问器和别名同 [Request](#request) 等价:

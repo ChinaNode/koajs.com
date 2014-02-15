@@ -69,6 +69,9 @@ var ct = this.type;
 // => "image/png"
 ```
 
+### req.charset
+  获取请求 charset, 没有返回 `undefined`
+
 ### req.query
 
   获取解析后的 query-string, 如果没有返回空对象. 注意: 该方法不支持嵌套解析.
@@ -280,4 +283,15 @@ this.acceptsLanguages();
 // => ["es", "pt", "en"]
 ```
 
+### req.idempotent
+
+  判断请求是否是 idempotent.
+
+### req.socket
+
+  返回请求 socket.
+
+### req.get(field)
+
+  返回请求 header.
 
