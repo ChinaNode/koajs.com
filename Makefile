@@ -1,4 +1,3 @@
-
 DOCS = public/cn/index_cn.md \
   public/cn/context_cn.md \
   public/cn/request_cn.md \
