@@ -1,12 +1,12 @@
-# 安装 koa
+# 安装
 
-  koa 依赖支持 generator 的 Node 环境，准确来说，是 `node >= 0.11.9` 的环境。
+  Koa 当前需要 node 0.11.x 并开启 --harmony (或--harmony-generators), 因为它依赖于 ES6 的 generator 特性. 如果你的当前 Node 版本小于 0.11, 可以通过 [n](https://github.com/visionmedia/n) (node 版本管理工具) 快速安装 0.11.x
 
 ````
-$ npm install koa
+$ npm install -g n
+$ n 0.11.12
+$ node --harmony my-koa-app.js
 ````
-
-  安装完成后，应确保使用 `$ node app.js --harmony` 或(--harmony-generators) 即，harmony 模式运行程序。
 
   为了方便，可以将 `node` 设置为默认启动 harmony 模式的别名：
 
@@ -18,12 +18,12 @@ alias node='node --harmony'
 
 # Application
 
-  一个 Koa Application（以下简称 app）由一系列 generator 中间件组成。按照编码顺序在栈内依次执行，从这个角度来看，Koa app 和其他中间件系统（比如 Ruby Rack 或者 Connect/Express ）没有什么太大差别，不过，从另一个层面来看，Koa 提供了一种基于底层中间件编写「语法糖」的设计思路，这让设计中间件变得更简单有趣。
+  Koa 应用是一个包含中间件 generator 方法数组的对象。当请求到来时, 这些方法会以 stack-like 的顺序执行, 从这个角度来看，Koa 和其他中间件系统（比如 Ruby Rack 或者 Connect/Express ）非常相似. 然而 Koa 的一大设计理念是: 通过其他底层中间件层提供高级「语法糖」，而不是Koa. 这大大提高了框架的互操作性和健壮性, 并让中间件开发变得简单有趣.
 
-  在这些中间件中，有负责内容协商（content-negotation）、缓存控制（cache freshness）、反向代理（proxy support）与重定向等等功能的常用中间件（详见 [中间件](#%E4%B8%AD%E9%97%B4%E4%BB%B6middleware) 章节），但如前所述， Koa 内核并不会打包这些中间件，让我们先来看看 Koa 极其简单的 Hello World 应用程序：
+  比如内容协商（content-negotation）、缓存控制（cache freshness）、反向代理（proxy support）重定向等常见功能都由中间件来实现. 将类似常见任务分离给中间件实现, Koa 实现了异常精简的代码. 
 
 
-  Hello world:
+  一如既往的 Hello world:
 
 ```js
 var koa = require('koa');
@@ -40,13 +40,11 @@ app.listen(3000);
 
 ## 代码级联（Cascading）
 
-  Koa 中间件以一种非常传统的方式级联起来，你可能会非常熟悉这种写法。
+  Koa 中间件以一种更加传统的方式级联起来, 跟你在其他系统或工具中碰到的方式非常相似。
+  然而在以往的 Node 开发中, 级联是通过回调实现的, 想要开发用户友好的代码是非常困难的,
+  Koa 借助 generators 实现了真正的中间件架构, 与 Connect 实现中间件的方法相对比，Koa 的做法不是简单的将控制权依次移交给一个又一个的方法直到某个结束，Koa 执行代码的方式有点像回形针，用户请求通过中间件，遇到 `yield next` 关键字时，会被传递到下游中间件（downstream），在 `yield next` 捕获不到下一个中间件时，逆序返回继续执行代码（upstream）。
 
-  在以往的 Node 开发中，频繁使用回调不太便于展示复杂的代码逻辑，在 Koa 中，我们可以写出真正具有表现力的中间件。与 Connect 实现中间件的方法相对比，Koa 的做法不是简单的将控制权依次移交给一个又一个的中间件直到程序结束，Koa 执行代码的方式有点像回形针，用户请求通过中间件，遇到 `yield next` 关键字时，会被传递到下一个符合请求的路由（downstream），在 `yield next` 捕获不到下一个中间件时，逆序返回继续执行代码（upstream）。
-
-  下边这个例子展现了使用这一特殊方法书写的 Hello World 范例：一开始，用户的请求通过 x-response-time 中间件和 logging 中间件，这两个中间件记录了一些请求细节，然后「穿过」 response 中间件一次，最终结束请求，返回 「Hello World」。
-
-  当程序运行到 `yield next`时，代码流会暂停执行这个中间件的剩余代码，转而切换到下一个被定义的中间件执行代码，这样切换控制权的方式，被称为downstream，当没有下一个中间件执行 downstream 的时候，代码将会逆序执行。
+  下边这个简单返回 Hello World 的例子可以很好说明 Koa 的中间件机制：一开始，请求经过 x-response-time 和 logging 中间件，记录了请求的开始时间，然后将控制权 yield 给 response 中间件. 当一个中间件执行 `yield next`时，该方法会暂停执行并把控制权传递给下一个中间件，当没有下一个中间件执行 downstream 的时候，代码将会逆序执行所有流过中间件的 upstream 代码。
 
 ```js
 var koa = require('koa');
@@ -79,9 +77,6 @@ app.use(function *(){
 app.listen(3000);
 ```
 
-在上方的范例代码中，中间件以此被执行的顺序已经在注释中标记出来。你也可以自己尝试运行一下这个范例，并打印记录下各个环节的输出与耗时。
-
-**译者注：** 「级联」这个词许多人也许在 CSS 中听说过，如果你不能理解为什么在这里使用这个词，可以将这种路由结构想象成 LESS 的继承嵌套书写方式：
 
 ````
 .middleware1 {
@@ -104,40 +99,21 @@ app.listen(3000);
 ![onion.png](https://raw.github.com/fengmk2/koa-guide/master/onion.png)
 
 
-## 应用配置（Settings）
+## 配置（Settings）
 
-应用的配置是 app 实例的属性。目前来说，Koa 的配置项如下：
+应用配置是 app 实例的属性, 目前支持以下配置:
 
 - app.name 应用名称
-- app.env 执行环境，默认是 `NODE_ENV` 或者 `"development"` 字符串
+- app.env 默认是 __NODE_ENV__ 或者 "development"
 - app.proxy 决定了哪些 `proxy header` 参数会被加到信任列表中
 - app.subdomainOffset 被忽略的 `.subdomains` 列表，详见下方 api
-- app.outputErrors 是否输出错误堆栈（`err.stack`）到 `stderr` [当执行环境是 `"test"` 的时候为 `false`]
-
-## 中间件（Middleware）
-* [koa-router](https://github.com/alexmingoia/koa-router)
-* [trie-router](https://github.com/koajs/trie-router)
-* [route](https://github.com/koajs/route)
-* [basic-auth](https://github.com/koajs/basic-auth)
-* [etag](https://github.com/koajs/etag)
-* [compose](https://github.com/koajs/compose)
-* [static](https://github.com/koajs/static)
-* [static-cache](https://github.com/koajs/static-cache)
-* [session](https://github.com/koajs/session)
-* [compress](https://github.com/koajs/compress)
-* [csrf](https://github.com/koajs/csrf)
-* [logger](https://github.com/koajs/logger)
-* [mount](https://github.com/koajs/mount)
-* [send](https://github.com/koajs/send)
-* [error](https://github.com/koajs/error)
-
 
 ## app.listen(...)
 
   一个 Koa 应用跟 HTTP server 不是 1-to-1 关系, 一个或多个 Koa 应用可以被加载到一块
   组成一个更大的包含一个 HTTP server 的应用.
 
-  创建并返回一个 http server, 并且支持传递参数
+  该方法创建并返回一个 http server, 并且支持传递固定参数
   `Server#listen()`. 具体参数可查看 [nodejs.org](http://nodejs.org/api/http.html#http_server_listen_port_hostname_backlog_callback). 如下为一个监听 `3000` 端口的简单应用:
 
 ```js
@@ -155,7 +131,7 @@ var app = koa();
 http.createServer(app.callback()).listen(3000);
 ```
 
-  这样你可以同时支持 HTTP 和 HTTPS, 或在多个地址上使用同一个 app.
+  这意味着你可以同时支持 HTTP 和 HTTPS, 或在多个地址上使用同一个 app.
 
 ```js
 var http = require('http');
@@ -167,15 +143,17 @@ http.createServer(app.callback()).listen(3001);
 
 ## app.callback()
 
-  返回一个可被 `http.createServer()` 接受的程序实例，也可以将这个返回函数挂载在一个 Connect/Express 应用中。
+  返回一个回调方法能用于 `http.createServer()` 来处理请求，也可以将这个回调函数挂载到 Connect/Express 应用上。
 
 ## app.use(function)
 
-  将给定的 function 当做中间件加载到应用中，详见 [中间件](#middleware) 章节
+  将给定的 function 当做中间件加载到应用中，详见 [中间件](https://github.com/koajs/koa/wiki#middleware) 
 
 ## app.keys=
 
- 设置一个签名 Cookie 的密钥。这些参数会被传递给 [KeyGrip](https://github.com/jed/keygrip) 如果你想自己生成一个实例，也可以这样：
+ 设置 Cookie 签名密钥。
+
+ 这些值会被传递给 [KeyGrip](https://github.com/jed/keygrip) 如果你想自己生成一个实例，也可以这样：
 
 ```js
 app.keys = ['im a newer secret', 'i like turtle'];
@@ -190,7 +168,7 @@ this.cookies.set('name', 'tobi', { signed: true });
 
 ## 错误处理（Error Handling）
 
-  除非应用执行环境被配置为 `"test"`，Koa 都将会将所有错误信息输出到 stderr，和 Connect 一样，你可以自己定义一个「错误事件」来监听 Koa app 中发生的错误：
+  除非应用执行环境(__NODE_ENV__)被配置为 `"test"`，Koa 都将会将所有错误信息输出到 stderr. 如果想自定义错误处理逻辑, 可以定义一个「错误事件」来监听 Koa app 中发生的错误：
 
 ```js
 app.on('error', function(err){
@@ -198,7 +176,7 @@ app.on('error', function(err){
 });
 ```
 
-  当任何 req 或者 res 中出现的错误无法被回应到客户端时，Koa 会在第二个参数传入这个错误的上下文：
+  当 req/res 周期中出现任何错误且无法响应客户端时，Koa 会把 `Context`(上下文) 实例作为第二个参数传递给 error 事件：
 
 ```js
 app.on('error', function(err, ctx){
@@ -206,6 +184,6 @@ app.on('error', function(err, ctx){
 });
 ```
 
-  如果任何错误有可能被回应到客户端，比如当没有新数据写入 socket 时，Koa 会默认返回一个 500 错误，并抛出一个 app 级别的错误到日志处理中间件中。
-
+  如果有错误发生, 并且还能响应客户端(即没有数据被写入到 socket), Koa 会返回 500 "Internal Server Error".
+  这两种情况都会触发 app-level 的 error 事件, 用于 logging.
 

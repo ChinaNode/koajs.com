@@ -1,15 +1,12 @@
 # Context
 
-  Koa 的 Context 把 node 的 request, response 对象包含进一个单独对象, 并提供许多开发 web 应用和 APIs 的有用方法.
+  Koa 的 Context 把 node 的 request, response 对象封装进一个单独对象, 并提供许多开发 web 应用和 APIs 有用的方法.
+  那些在 HTTP server 开发中使用非常频繁操作, 直接在 Koa 里实现,
+  而不是放在更高层次的框架, 这样中间件就不需要重复实现这些通用的功能.
 
-  许多访问器和方法直接委托为他们 `ctx.request` 或 `ctx.response` 的
-  等价方法, 用于访问方便, 有些是完全相同.
+  _每个_ 请求会创建自己的 `Context` 实例, 在中间件中作为 receiver 引用, 或通过 `this` 标示符引用. 如.
 
-  这些操作在 HTTP server 开发中使用如此频繁, 所以在这里实现.
-  而不是更高层次框架 这样中间件中就不需要重复实现这些通用的功能.
-
-  _每个_ 请求会创建自己的 `Context`, 在中间件中作为 receiver 引用, 或通过 `this` 标示符. 如.
-
+  
 ```js
 app.use(function *(){
   this; // is the Context
@@ -17,6 +14,10 @@ app.use(function *(){
   this.response; // is a koa Response
 });
 ```
+
+Context 的许多访问器和方法直接委托为他们的 `ctx.request` 或 `ctx.response` 的
+等价方法, 用于访问方便, 是完全相同的. 比如`ctx.type` 和 `ctx.length`
+  委托与 `response` 对象, `ctx.path` 和 `ctx.method` 委托与 `request`.
 
 ## API
 
@@ -30,7 +31,7 @@ app.use(function *(){
 
   Node 的 `response` 对象.
 
-  Bypassing Koa 的 response handling 是 __not supported__. 避免使用如下 node 属性:
+  绕开 Koa 的 response 处理 是 __不支持__的. 避免使用如下 node 属性:
 
 - `res.statusCode`
 - `res.writeHead()`
@@ -53,13 +54,13 @@ app.use(function *(){
 
   获取名为 `name` 带有 `options` 的 cookie:
 
- - `signed` 请求cookie应该是signed
+ - `signed` 请求的 cookie 应该是被 signed
 
 注意: koa 使用 [cookies](https://github.com/jed/cookies) 模块, options 被直接传递过去.
 
 ### ctx.cookies.set(name, value, [options])
 
-  设置cookie `name` 为 `value` 带有 `options`:
+  设置 cookie `name` 为 `value` 带有 `options`:
 
  - `signed` sign cookie 值
  - `expires` cookie 过期 `Date`
@@ -70,7 +71,7 @@ app.use(function *(){
 
 注意: koa 使用 [cookies](https://github.com/jed/cookies) 模块, options 被直接传递过去.
 
-### ctx.throw(msg, [status])
+### ctx.throw(msg, [status], [properties])
 
   Helper 方法, 抛出包含 `.status` 属性的错误, 默认为 `500`. 该方法让 Koa 能够合适的响应.
   并且支持如下组合:
@@ -93,12 +94,19 @@ throw err;
   注意这些是 user-level 的错误, 被标记为 `err.expose`, 即这些消息可以用于 client 响应,
   而不是 error message 的情况, 因为你不想泄露失败细节.
 
+  你可以传递一个 `properties` 对象, 该对象会被合并到 error 中, 这在修改传递给上游中间件的机器友好错误时非常有用
+
+```js
+this.throw(401, 'access_denied', { user: user });
+this.throw('access_denied', { user: user });
+```
+
 
 ### ctx.respond
 
-  如不想使用 koa 内置的 response 处理方法, 可以 设置 `this.respond = false;`. 这时你可以自己设置 `res` 对象.
+  如不想使用 koa 内置的 response 处理方法, 可以设置 `this.respond = false;`. 这时你可以自己设置 `res` 对象.
 
-  注意这样使用是不被 Koa 支持的. 这样有可能会破坏 Koa 的中间件和 Koa 本身. 这种用法只是作为一种 hack 方式, 给那些想在 Koa 中间件和方法内使用传统的`fn(req, res)` 一种方式
+  注意这样使用是不被 Koa 支持的. 这样有可能会破坏 Koa 的中间件和 Koa 本身内部功能. 这种用法只是作为一种 hack 方式, 给那些想在 Koa 中间件和方法内使用传统的`fn(req, res)` 一种方式
 
 
 ## Request 别名
@@ -106,19 +114,20 @@ throw err;
   如下访问器和别名同 [Request](#request) 等价:
 
   - `ctx.header`
+  - `ctx.headers`
   - `ctx.method`
   - `ctx.method=`
   - `ctx.url`
   - `ctx.url=`
+  - `ctx.originalUrl`
   - `ctx.path`
   - `ctx.path=`
   - `ctx.query`
   - `ctx.query=`
   - `ctx.querystring`
   - `ctx.querystring=`
-  - `ctx.length`
   - `ctx.host`
-  - `ctx.host=`
+  - `ctx.hostname`
   - `ctx.fresh`
   - `ctx.stale`
   - `ctx.socket`
@@ -143,8 +152,9 @@ throw err;
   - `ctx.status`
   - `ctx.status=`
   - `ctx.length=`
-  - `ctx.type`
+  - `ctx.length`
   - `ctx.type=`
+  - `ctx.type`
   - `ctx.headerSent`
   - `ctx.redirect()`
   - `ctx.attachment()`

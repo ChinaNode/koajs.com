@@ -13,16 +13,11 @@
 
 ### res.status
 
-### res.statusString
-
-  响应状态字符串
-
-
-返回响应状态. 默认 `res.status` 没有值, 而不是像 node 的 `res.statusCode` 默认为 `200`.
+  返回响应状态. 默认 `res.status` 没有值, 而不是像 node 的 `res.statusCode` 默认为 `200`.
 
 ### res.status=
 
-使用状态码或不区分大小写的字符串设置响应状态:
+  使用状态码或不区分大小写的字符串设置响应状态:
 
   - 100 "continue"
   - 101 "switching protocols"
@@ -180,20 +175,29 @@ this.type = 'png';
   会自动设置为 "utf-8", 但是如果设置完整时, charset 不会自动设定,
   如 `res.type = 'text/html'`.
 
+### res.is(types...)
 
-### res.charset
+  跟 `this.request.is()` 非常相似.
+  检查响应 type 是否是提供的 types 之一.
+  该方法在开发修改响应内容的中间件时非常有用
 
-  获取响应 charset, 没有返回 `undefined`:
+  例如这是一个压缩 html 响应的中间件, 他不会处理 streams 类型.
 
 ```js
-this.type = 'text/plain; charset=utf-8';
-this.charset
-// => "utf-8"
+var minify = require('html-minifier');
+
+app.use(function *minifyHTML(next){
+  yield next;
+
+  if (!this.response.is('html')) return;
+
+  var body = this.body;
+  if (!body || body.pipe) return;
+
+  if (Buffer.isBuffer(body)) body = body.toString();
+  this.body = minify(body);
+});
 ```
-
-### res.charset=
-
-  设置 response charset, 如果已存在则覆盖
 
 
 ### res.redirect(url, [alt])
@@ -247,9 +251,6 @@ this.response.lastModified = new Date();
 this.response.etag = crypto.createHash('md5').update(this.body).digest('hex');
 ```
 
-### res.append(field, val)
-
-  在header `field` 值后附加 `val`
 
 ### res.vary(field)
 

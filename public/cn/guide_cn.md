@@ -35,7 +35,7 @@ app.use(function *(next){
   如果你是一个前端工程师, 可以把所有 `yield next;` 之前的代码看做 "capture" 阶段, 把之后的代码看做 "bubble" 阶段. 
   如下 gif 展示了 ES6 generators 如何让我们合理的使用 stack flow 实现 request and response flows:
 
-![koa middleware](https://i.cloudup.com/N7L5UakJo0.gif)
+![koa middleware](https://github.com/koajs/koa/raw/master/docs/middleware.gif)
 
    1. 创建 date 记录花费时间
    2. 将控制 Yield 到下一个 middleware
