@@ -56,7 +56,7 @@ Context 的许多访问器和方法直接委托为他们的 `ctx.request` 或 `c
 
  - `signed` 请求的 cookie 应该是被 signed
 
-注意: koa 使用 [cookies](https://github.com/jed/cookies) 模块, options 被直接传递过去.
+koa 使用 [cookies](https://github.com/jed/cookies) 模块, options 被直接传递过去.
 
 ### ctx.cookies.set(name, value, [options])
 
@@ -69,9 +69,9 @@ Context 的许多访问器和方法直接委托为他们的 `ctx.request` 或 `c
  - `secure` secure cookie
  - `httpOnly` server 才能访问 cookie, 默认 __true__ 
 
-注意: koa 使用 [cookies](https://github.com/jed/cookies) 模块, options 被直接传递过去.
+koa 使用 [cookies](https://github.com/jed/cookies) 模块, options 被直接传递过去.
 
-### ctx.throw(msg, [status], [properties])
+### ctx.throw([msg], [status], [properties])
 
   Helper 方法, 抛出包含 `.status` 属性的错误, 默认为 `500`. 该方法让 Koa 能够合适的响应.
   并且支持如下组合:
@@ -100,6 +100,21 @@ throw err;
 this.throw(401, 'access_denied', { user: user });
 this.throw('access_denied', { user: user });
 ```
+
+
+koa 使用 [http-errors](https://github.com/jshttp/http-errors) 创建错误对象.
+
+### ctx.assert(value, [msg], [status], [properties])
+
+  抛出错误的 Helper 方法, 跟 `.throw()` 相似
+  当 `!value`. 跟 node 的 [assert()](http://nodejs.org/api/assert.html)
+  方法相似.
+
+```js
+this.assert(this.user, 401, 'User not found. Please login!');
+```
+
+koa 使用 [http-assert](https://github.com/jshttp/http-assert) 实现断言.
 
 
 ### ctx.respond
