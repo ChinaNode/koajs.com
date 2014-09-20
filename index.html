@@ -1,4 +1,4 @@
-<!DOCTYPE html><html><head><title>Koajs - 下一代 Node.js web 框架</title><link rel="stylesheet" href="public/style.css"><link rel="shortcut icon" href="favi.co"><link rel="stylesheet" href="public/icons/css/slate.css"><link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Italiana&amp;subset=latin"><meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0"><meta charset="utf8"><meta name="keywords" content="Koa.js, Koa, Koajs, Node, Web框架, generator, RedNode"><meta name="description" content="Express原班团队打造的下一代 Node.js web 框架, 全新架构, 核心代码精简, 全新的流程书写代码-Koajs"></head><body><section id="top"><div id="menu"><a id="toggle" href="#"><i class="icon-menu"></i></a><ul><li><a href="#introduction">Introduction</a></li><li><a href="#application">Application</a></li><li><a href="#context">Context</a></li><li><a href="#request">Request</a></li><li><a href="#response">Response</a></li><li><a href="#guide">Guide</a></li><li><a href="#links">Links</a></li><li><a href="http://koajs.com" target="_blank">Koajs.com</a></li></ul></div><div id="heading"><div id="logo">Koa</div><div id="tagline">下一代 Node.js web 框架(0.11.0)</div></div></section><section><div class="content"><h1 id="introduction">简介</h1><p>由 Express 原班人马打造的 koa，致力于成为一个更小、更健壮、更富有表现力的 Web 框架。使用 koa 编写 web 应用，通过组合不同的 generator，可以免除重复繁琐的回调函数嵌套，并极大地提升常用错误处理效率。Koa 不在内核方法中绑定任何中间件，它仅仅提供了一个轻量优雅的函数库，使得编写 Web 应用变得得心应手。
+<!DOCTYPE html><html><head><title>Koajs - 下一代 Node.js web 框架</title><link rel="stylesheet" href="public/style.css"><link rel="shortcut icon" href="favi.co"><link rel="stylesheet" href="public/icons/css/slate.css"><link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Italiana&amp;subset=latin"><meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0"><meta charset="utf8"><meta name="keywords" content="Koa.js, Koa, Koajs, Node, Web框架, generator, RedNode"><meta name="description" content="Express原班团队打造的下一代 Node.js web 框架, 全新架构, 核心代码精简, 全新的流程书写代码-Koajs"></head><body><section id="top"><div id="menu"><a id="toggle" href="#"><i class="icon-menu"></i></a><ul><li><a href="#introduction">Introduction</a></li><li><a href="#application">Application</a></li><li><a href="#context">Context</a></li><li><a href="#request">Request</a></li><li><a href="#response">Response</a></li><li><a href="#guide">Guide</a></li><li><a href="#links">Links</a></li><li><a href="http://koajs.com" target="_blank">Koajs.com</a></li></ul></div><div id="heading"><div id="logo">Koa</div><div id="tagline">下一代 Node.js web 框架(0.12.0)</div></div></section><section><div class="content"><h1 id="introduction">简介</h1><p>由 Express 原班人马打造的 koa，致力于成为一个更小、更健壮、更富有表现力的 Web 框架。使用 koa 编写 web 应用，通过组合不同的 generator，可以免除重复繁琐的回调函数嵌套，并极大地提升常用错误处理效率。Koa 不在内核方法中绑定任何中间件，它仅仅提供了一个轻量优雅的函数库，使得编写 Web 应用变得得心应手。
 </p></div></section><section><div class="content"><h1 id="-">安装</h1>
 <p>  Koa 当前需要 node 0.11.x 并开启 --harmony (或--harmony-generators), 因为它依赖于 ES6 的 generator 特性. 如果你的当前 Node 版本小于 0.11, 可以通过 <a href="https://github.com/visionmedia/n">n</a> (node 版本管理工具) 快速安装 0.11.x</p>
 <pre><code>$ npm install -g n
@@ -154,7 +154,7 @@ app.keys = new KeyGrip([&#39;im a newer secret&#39;, &#39;i like turtle&#39;], &
 <ul>
 <li><code>signed</code> 请求的 cookie 应该是被 signed</li>
 </ul>
-<p>注意: koa 使用 <a href="https://github.com/jed/cookies">cookies</a> 模块, options 被直接传递过去.</p>
+<p>koa 使用 <a href="https://github.com/jed/cookies">cookies</a> 模块, options 被直接传递过去.</p>
 <h3 id="ctx-cookies-set-name-value-options-">ctx.cookies.set(name, value, [options])</h3>
 <p>  设置 cookie <code>name</code> 为 <code>value</code> 带有 <code>options</code>:</p>
 <ul>
@@ -165,8 +165,8 @@ app.keys = new KeyGrip([&#39;im a newer secret&#39;, &#39;i like turtle&#39;], &
 <li><code>secure</code> secure cookie</li>
 <li><code>httpOnly</code> server 才能访问 cookie, 默认 <strong>true</strong> </li>
 </ul>
-<p>注意: koa 使用 <a href="https://github.com/jed/cookies">cookies</a> 模块, options 被直接传递过去.</p>
-<h3 id="ctx-throw-msg-status-properties-">ctx.throw(msg, [status], [properties])</h3>
+<p>koa 使用 <a href="https://github.com/jed/cookies">cookies</a> 模块, options 被直接传递过去.</p>
+<h3 id="ctx-throw-msg-status-properties-">ctx.throw([msg], [status], [properties])</h3>
 <p>  Helper 方法, 抛出包含 <code>.status</code> 属性的错误, 默认为 <code>500</code>. 该方法让 Koa 能够合适的响应.
   并且支持如下组合:</p>
 <pre><code class="lang-js">this.throw(403)
@@ -182,6 +182,13 @@ throw err;</code></pre>
 <p>  你可以传递一个 <code>properties</code> 对象, 该对象会被合并到 error 中, 这在修改传递给上游中间件的机器友好错误时非常有用</p>
 <pre><code class="lang-js">this.throw(401, &#39;access_denied&#39;, { user: user });
 this.throw(&#39;access_denied&#39;, { user: user });</code></pre>
+<p>koa 使用 <a href="https://github.com/jshttp/http-errors">http-errors</a> 创建错误对象.</p>
+<h3 id="ctx-assert-value-msg-status-properties-">ctx.assert(value, [msg], [status], [properties])</h3>
+<p>  抛出错误的 Helper 方法, 跟 <code>.throw()</code> 相似
+  当 <code>!value</code>. 跟 node 的 <a href="http://nodejs.org/api/assert.html">assert()</a>
+  方法相似.</p>
+<pre><code class="lang-js">this.assert(this.user, 401, &#39;User not found. Please login!&#39;);</code></pre>
+<p>koa 使用 <a href="https://github.com/jshttp/http-assert">http-assert</a> 实现断言.</p>
 <h3 id="ctx-respond">ctx.respond</h3>
 <p>  如不想使用 koa 内置的 response 处理方法, 可以设置 <code>this.respond = false;</code>. 这时你可以自己设置 <code>res</code> 对象.</p>
 <p>  注意这样使用是不被 Koa 支持的. 这样有可能会破坏 Koa 的中间件和 Koa 本身内部功能. 这种用法只是作为一种 hack 方式, 给那些想在 Koa 中间件和方法内使用传统的<code>fn(req, res)</code> 一种方式</p>
